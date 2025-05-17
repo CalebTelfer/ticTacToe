@@ -24,6 +24,9 @@ const {game, gameBoard} = (function () {
 
     startButton.addEventListener("click", () => game.startGame());
 
+
+
+
 //----------------------------------------
 
 
@@ -33,6 +36,13 @@ const {game, gameBoard} = (function () {
         markers: document.querySelectorAll(".gamesquare h1")
     }
 
+
+    gameScreen.squares.forEach(square => {
+        square.addEventListener("click", () => {
+            const index = square.getAttribute("data-index");
+            game.placeMarker(index);
+        })
+    })
 
     //info screen
     const infoScreen = {
@@ -109,7 +119,12 @@ const {game, gameBoard} = (function () {
             } else {
                 gameInProgressScreen.playerNameText.textContent = players[1].name;
             }
+        },
 
+        updateGameScreen: function(index) {
+            const square = document.querySelector(`[data-index="${index}"]`);
+            const squareMarker = square.querySelector("h1");
+            squareMarker.textContent = nextToMove;
         }
 
     }
@@ -170,8 +185,8 @@ const {game, gameBoard} = (function () {
                 return;
             }
             board[squareNum] = nextToMove;
-            // update visuals on board.
-
+            display.updateGameScreen(squareNum);
+            
             if(isGameOver()) {
                 game.reset();
             } else {
@@ -181,8 +196,8 @@ const {game, gameBoard} = (function () {
                     nextToMove = "X";
 
                 }
-            
-                startNextTurn();
+
+                display.updateTurn();
             }
         }
     };
