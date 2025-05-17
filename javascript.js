@@ -17,17 +17,50 @@ const {game, gameBoard} = (function () {
 
     const resetButton = document.getElementById("resetbutton");
 
-    resetButton.addEventListener("click", () => display.setDefaultScreens());
+    resetButton.addEventListener("click", () => game.reset());
 
+
+    const startButton = document.getElementById("startbutton");
+
+    startButton.addEventListener("click", () => game.startGame());
 
 //----------------------------------------
-    const infoScreen = document.querySelector(".game-control-container");
-    const infoScreenContent = [...infoScreen.children];
-
-    const gameSquares = document.querySelectorAll(".gamesquare");
 
 
+// SCREEN SETUPS / DISPLAY ---------------------
+    const gameScreen = {
+        squares: document.querySelectorAll(".gamesquare"),
+        markers: document.querySelectorAll(".gamesquare h1")
+    }
 
+
+    //info screen
+    const infoScreen = {
+        container: document.querySelector(".game-control-container"),
+        children: [],
+        resetButton: document.getElementById("resetbutton")
+    }
+
+    infoScreen.children = [...infoScreen.container.children];
+
+    //game in progress
+    const gameInProgressScreen = {
+        nextMove: document.createElement("h1"),
+        playerNameText: document.createElement("h1")
+    }
+
+
+    //game over screen elements.
+    const gameOverScreen = {
+        header: document.createElement("h1"), // can reUse the same variables here for same layout. Just rename for better understanding.
+        winner: document.createElement("h2"),
+        buttons: infoScreen.buttonsDiv
+    }
+
+
+
+
+//-----------------------------------------------
     const resetBoard = () => board = [];
 
     const gameBoard = {
@@ -38,34 +71,47 @@ const {game, gameBoard} = (function () {
 
     let nextToMove = "X"; // x starts first by default
 
-    const startNextTurn = function() {
-        if(nextToMove == "X") {
-            //Update visuals to show "X" is ready to move.
-        } else {
-            //Update visuals to show "O" is ready to move.
-        }
-
-    }
-
     const display = {
         setDefaultScreens: function() {
             display.clearInfoScreen();
-            infoScreenContent.forEach(content => infoScreen.appendChild(content));
+            infoScreen.children.forEach(child => infoScreen.container.appendChild(child));
 
-            gameSquares.forEach(square => {
-                const h1 = square.querySelector('h1');
-                h1.textContent = "";
+            gameScreen.markers.forEach(marker => {
+                marker.textContent = "";
             })
         },
 
         clearInfoScreen: function() {
-            while (infoScreen.firstChild) {
-                infoScreen.removeChild(infoScreen.firstChild);
+            while (infoScreen.container.firstChild) {
+                infoScreen.container.removeChild(infoScreen.container.firstChild);
             }
             
         },
 
-        
+        gameStartScreen: function() {
+            display.clearInfoScreen();
+            gameInProgressScreen.nextMove.textContent = "Please Place Your Marker,";
+
+            if(nextToMove == "X") {
+                gameInProgressScreen.playerNameText.textContent = players[0].name;
+            } else {
+                gameInProgressScreen.playerNameText.textContent = players[1].name;
+            }
+            infoScreen.container.appendChild(gameInProgressScreen.nextMove);
+            infoScreen.container.appendChild(gameInProgressScreen.playerNameText);
+
+            infoScreen.container.appendChild(infoScreen.resetButton);
+        },
+
+        updateTurn: function() {
+            if(nextToMove == "X") {
+                gameInProgressScreen.playerNameText.textContent = players[0].name;
+            } else {
+                gameInProgressScreen.playerNameText.textContent = players[1].name;
+            }
+
+        }
+
     }
 
 
@@ -105,12 +151,8 @@ const {game, gameBoard} = (function () {
             if(players.length != 2) {
                 return "Waiting for more players...";
             } else {
-
-                
-
-
-
-                startNextTurn();
+                display.gameStartScreen();
+                display.updateTurn();
                 console.log("Game commencing");
             }
         },
@@ -119,6 +161,7 @@ const {game, gameBoard} = (function () {
             resetBoard();
             resetPlayers();
             nextToMove = "X";
+            display.setDefaultScreens();
         },
 
         placeMarker: function(squareNum) {
