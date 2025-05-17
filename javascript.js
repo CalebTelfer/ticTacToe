@@ -2,6 +2,32 @@ const {game, gameBoard} = (function () {
     let board = [];
     let players = [];
 
+
+// EVENT LISTENERS ------------------------------------
+    const pnameform = document.querySelector("form");
+
+    pnameform.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const playerName = document.getElementById("pName").value;
+
+        game.createPlayer(playerName);
+    })
+
+
+
+    const resetButton = document.getElementById("resetbutton");
+
+    resetButton.addEventListener("click", () => display.setDefaultScreens());
+
+
+//----------------------------------------
+    const infoScreen = document.querySelector(".game-control-container");
+    const infoScreenContent = [...infoScreen.children];
+
+    const gameSquares = document.querySelectorAll(".gamesquare");
+
+
+
     const resetBoard = () => board = [];
 
     const gameBoard = {
@@ -20,6 +46,30 @@ const {game, gameBoard} = (function () {
         }
 
     }
+
+    const display = {
+        setDefaultScreens: function() {
+            display.clearInfoScreen();
+            infoScreenContent.forEach(content => infoScreen.appendChild(content));
+
+            gameSquares.forEach(square => {
+                const h1 = square.querySelector('h1');
+                h1.textContent = "";
+            })
+        },
+
+        clearInfoScreen: function() {
+            while (infoScreen.firstChild) {
+                infoScreen.removeChild(infoScreen.firstChild);
+            }
+            
+        },
+
+        
+    }
+
+
+
 
 
     const winCombinations = [
@@ -55,6 +105,11 @@ const {game, gameBoard} = (function () {
             if(players.length != 2) {
                 return "Waiting for more players...";
             } else {
+
+                
+
+
+
                 startNextTurn();
                 console.log("Game commencing");
             }
