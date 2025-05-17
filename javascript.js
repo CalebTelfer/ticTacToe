@@ -1,5 +1,5 @@
 const {game, gameBoard} = (function () {
-    let board = [];
+    let board = [null, null, null, null, null, null, null, null, null];
     let players = [];
 
 
@@ -40,7 +40,9 @@ const {game, gameBoard} = (function () {
     gameScreen.squares.forEach(square => {
         square.addEventListener("click", () => {
             const index = square.getAttribute("data-index");
-            game.placeMarker(index);
+            if(!document.getElementById("startbutton")) { // dont want markers placed with game not started
+                game.placeMarker(index);
+            }
         })
     })
 
@@ -71,7 +73,7 @@ const {game, gameBoard} = (function () {
 
 
 //-----------------------------------------------
-    const resetBoard = () => board = [];
+    const resetBoard = () => board = [null, null, null, null, null, null, null, null, null];
 
     const gameBoard = {
         getBoard: () => [...board] // returns read only copy of the board.
@@ -125,6 +127,29 @@ const {game, gameBoard} = (function () {
             const square = document.querySelector(`[data-index="${index}"]`);
             const squareMarker = square.querySelector("h1");
             squareMarker.textContent = nextToMove;
+        },
+
+        updategameOverScreen: function(winningMarker, condition) {
+
+            display.clearInfoScreen();
+
+            if (condition == "win") {
+                if (winningMarker == "X") {
+                    gameOverScreen.header.textContent = "CONGRATULATIONS";
+                    gameOverScreen.winner.textContent = players[0].name + " wins!";
+                } else {
+                    gameOverScreen.header.textContent = "CONGRATULATIONS";
+                    gameOverScreen.winner.textContent = players[1].name + " wins!";
+                }
+
+            } else {
+                gameOverScreen.header.textContent = "Game Over!"
+                gameOverScreen.winner.textContent = "TIE!";
+            }
+            infoScreen.container.appendChild(gameOverScreen.header);
+            infoScreen.container.appendChild(gameOverScreen.header);
+            infoScreen.container.appendChild(gameOverScreen.winner);
+            infoScreen.container.appendChild(resetButton);
         }
 
     }
@@ -140,6 +165,24 @@ const {game, gameBoard} = (function () {
     ];
 
     const isGameOver = function() {
+        
+        for (let combination of winCombinations) {
+            const [a, b, c] = combination;
+            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                display.updategameOverScreen(board[a], "win")
+
+                return true;
+            } else {
+                if (!board.includes(null)) {
+                    display.updategameOverScreen(null, "tie")
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+
         //logic to check win
         //logic to check for a full board with no winners (tie)
 
@@ -180,23 +223,19 @@ const {game, gameBoard} = (function () {
         },
 
         placeMarker: function(squareNum) {
-            if (board[squareNum] != undefined) {
+            if (board[squareNum] != null) {
                 console.log("Theres already a marker there!");
                 return;
             }
             board[squareNum] = nextToMove;
             display.updateGameScreen(squareNum);
-            
-            if(isGameOver()) {
-                game.reset();
-            } else {
+
+            if(!isGameOver()) {
                 if (nextToMove == "X") {
                     nextToMove = "O";
                 } else {
                     nextToMove = "X";
-
                 }
-
                 display.updateTurn();
             }
         }
